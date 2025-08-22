@@ -10,8 +10,8 @@ def process_data():
     which will cause a NameError at runtime.
     """
     logging.info("Starting the data processing task.")
-    # Imagine this variable was supposed to be passed in or defined earlier.
-    # Because it's not defined, this line will fail.
+    # FIX: Define the variable before using it
+    my_undefined_data_path = "/tmp/data"  # <-- Added default path
     data_path = my_undefined_data_path + "/source.csv"
     logging.info(f"This will never be logged. Path was: {data_path}")
 
