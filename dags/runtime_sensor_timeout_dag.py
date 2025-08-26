@@ -24,6 +24,7 @@ with DAG(
         mode="poke", # 'poke' mode keeps the worker slot busy
         poke_interval=10,
         timeout=60, # Fail the task after 60 seconds of waiting
+        soft_fail=True,
     )
 
     task_that_will_be_skipped = BashOperator(
