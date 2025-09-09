@@ -16,14 +16,14 @@ with DAG(
     tags=["example", "composer-v2", "error", "runtime", "sensor"],
 ) as dag:
     # This sensor will poke GCS every 10 seconds for a file that we will never create.
-    # It will time out after 300 seconds.
+    # It will time out after 600 seconds.
     wait_for_nonexistent_file = GCSObjectExistenceSensor(
         task_id="wait_for_nonexistent_file",
         bucket=GCS_BUCKET,
         object="sample/file_that_will_never_exist.txt",
         mode="poke", # 'poke' mode keeps the worker slot busy
         poke_interval=10,
-        timeout=300, # Fail the task after 300 seconds of waiting
+        timeout=600, # Fail the task after 600 seconds of waiting
     )
 
     task_that_will_be_skipped = BashOperator(
