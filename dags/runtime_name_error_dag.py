@@ -10,6 +10,8 @@ def process_data():
     which will cause a NameError at runtime.
     """
     logging.info("Starting the data processing task.")
+    # Defining the variable that was missing
+    my_undefined_data_path = "/path/to/your/data"  # TODO: Update this path to a valid one
     # Imagine this variable was supposed to be passed in or defined earlier.
     # Because it's not defined, this line will fail.
     data_path = my_undefined_data_path + "/source.csv"
