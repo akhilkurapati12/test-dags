@@ -12,6 +12,9 @@ def process_data():
     logging.info("Starting the data processing task.")
     # Imagine this variable was supposed to be passed in or defined earlier.
     # Because it's not defined, this line will fail.
+    # FIX: Define the variable my_undefined_data_path. 
+    # Please update this path to the correct location of your data.
+    my_undefined_data_path = "/path/to/your/data"
     data_path = my_undefined_data_path + "/source.csv"
     logging.info(f"This will never be logged. Path was: {data_path}")
 
