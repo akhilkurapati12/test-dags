@@ -16,11 +16,13 @@ with DAG(
 ) as dag:
     # The SQL syntax here is intentionally wrong ('SELEC' instead of 'SELECT').
     # BigQuery will reject this query.
+    # NOTE: This DAG will fail if the service account does not have the
+    # bigquery.jobs.create permission in the project.
     failing_sql_query = BigQueryInsertJobOperator(
         task_id="failing_sql_query_task",
         configuration={
             "query": {
-                "query": f"SELEC 1 AS value FROM `{GCP_PROJECT_ID}.{BIGQUERY_DATASET}.logs` LIMIT 1;",
+                "query": f"SELECT 1 AS value FROM `{GCP_PROJECT_ID}.{BIGQUERY_DATASET}.logs` LIMIT 1;",
                 "useLegacySql": False,
                 "destinationTable": {
                     "projectId": GCP_PROJECT_ID,
