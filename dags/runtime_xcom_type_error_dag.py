@@ -1,39 +1,32 @@
-import pendulum
-import logging
-
-from airflow.models.dag import DAG
+from airflow import DAG
 from airflow.operators.python import PythonOperator
+from datetime import datetime
 
-def push_a_string_value(**context):
-    """Pushes a string value to XComs."""
-    logging.info("Pushing the string '500' to XComs.")
-    context["ti"].xcom_push(key="my_value", value="500")
+def _push_xcom_value(**kwargs):
+    kwargs['ti'].xcom_push(key='my_int_value', value=123)
 
-def pull_and_do_math(**context):
-    """Pulls the XCom value and tries to perform math with it."""
-    pulled_value = context["ti"].xcom_pull(key="my_value", task_ids="push_task")
-    logging.info(f"Pulled value '{pulled_value}' of type {type(pulled_value)} from XComs.")
-    
-    # THE ERROR IS HERE: You cannot add a string and an integer.
-    # This will raise a TypeError.
-    result = pulled_value + 100
-    logging.info(f"This will not be logged. The result was {result}")
+def _pull_and_fail_task_callable(**kwargs):
+    ti = kwargs['ti']
+    int_value = ti.xcom_pull(key='my_int_value', task_ids='push_xcom_task')
+    # Ensure proper type casting to string before concatenation
+    result = "The value is: " + str(int_value)
+    print(result)
 
 with DAG(
-    dag_id="runtime_xcom_type_error_dag",
-    start_date=pendulum.datetime(2023, 1, 1, tz="UTC"),
-    schedule=None,
+    dag_id='runtime_xcom_type_error_dag',
+    start_date=datetime(2023, 1, 1),
+    schedule_interval=None,
     catchup=False,
-    tags=["example", "composer-v2", "error", "runtime", "xcoms"],
+    tags=['example'],
 ) as dag:
-    push_task = PythonOperator(
-        task_id="push_task",
-        python_callable=push_a_string_value,
+    push_xcom_task = PythonOperator(
+        task_id='push_xcom_task',
+        python_callable=_push_xcom_value,
     )
 
     pull_and_fail_task = PythonOperator(
-        task_id="pull_and_fail_task",
-        python_callable=pull_and_do_math,
+        task_id='pull_and_fail_task',
+        python_callable=_pull_and_fail_task_callable,
     )
 
-    push_task >> pull_and_fail_task
+    push_xcom_task >> pull_and_fail_task
