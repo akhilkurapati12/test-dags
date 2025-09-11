@@ -1,34 +1,20 @@
-import pendulum
-
-from airflow.models.dag import DAG
-from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
-
-# IMPORTANT: Replace with your GCP project and an existing BigQuery dataset.
-GCP_PROJECT_ID = "tmaf-dev"
-BIGQUERY_DATASET = "curated_logs"
+from airflow import DAG
+from airflow.providers.google.cloud.operators.bigquery import BigQueryExecuteQueryOperator
+from datetime import datetime
 
 with DAG(
-    dag_id="runtime_bigquery_sql_error_dag",
-    start_date=pendulum.datetime(2023, 1, 1, tz="UTC"),
-    schedule=None,
+    dag_id='runtime_bigquery_sql_error_dag',
+    start_date=datetime(2023, 1, 1),
+    schedule_interval=None,
     catchup=False,
-    tags=["example", "composer-v2", "error", "runtime", "gcp"],
+    tags=['example'],
 ) as dag:
-    # The SQL syntax here is intentionally wrong ('SELEC' instead of 'SELECT').
-    # BigQuery will reject this query.
-    failing_sql_query = BigQueryInsertJobOperator(
-        task_id="failing_sql_query_task",
-        configuration={
-            "query": {
-                "query": f"SELEC 1 AS value FROM `{GCP_PROJECT_ID}.{BIGQUERY_DATASET}.logs` LIMIT 1;",
-                "useLegacySql": False,
-                "destinationTable": {
-                    "projectId": GCP_PROJECT_ID,
-                    "datasetId": BIGQUERY_DATASET,
-                    "tableId": "my_temp_output_table_{{ ds_nodash }}",
-                },
-                "createDisposition": "CREATE_IF_NEEDED",
-                "writeDisposition": "WRITE_TRUNCATE",
-            }
-        },
+    failing_sql_query_task = BigQueryExecuteQueryOperator(
+        task_id='failing_sql_query_task',
+        sql="SELECT 1 FROM non_existent_table",
+        use_legacy_sql=False,
+        gcp_conn_id='google_cloud_default',
     )
+# Recommendation: The service account running this task needs 'bigquery.jobs.create' permission.
+# This is an IAM configuration change and cannot be fixed directly in the code.
+# Please ensure the service account associated with 'google_cloud_default' connection has the necessary permissions.
