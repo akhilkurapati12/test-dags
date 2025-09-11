@@ -1,39 +1,33 @@
-import pendulum
-import logging
-
-from airflow.models.dag import DAG
+from airflow import DAG
 from airflow.operators.python import PythonOperator
+from datetime import datetime
 
-def push_a_string_value(**context):
-    """Pushes a string value to XComs."""
-    logging.info("Pushing the string '500' to XComs.")
-    context["ti"].xcom_push(key="my_value", value="500")
+# Fix for TypeError in runtime_xcom_type_error_dag
+def push_value(**kwargs):
+    kwargs['ti'].xcom_push(key='my_xcom_value', value="50")
 
-def pull_and_do_math(**context):
-    """Pulls the XCom value and tries to perform math with it."""
-    pulled_value = context["ti"].xcom_pull(key="my_value", task_ids="push_task")
-    logging.info(f"Pulled value '{pulled_value}' of type {type(pulled_value)} from XComs.")
-    
-    # THE ERROR IS HERE: You cannot add a string and an integer.
-    # This will raise a TypeError.
-    result = pulled_value + 100
-    logging.info(f"This will not be logged. The result was {result}")
+def pull_and_do_math(**kwargs):
+    pulled_value = kwargs['ti'].xcom_pull(key='my_xcom_value')
+    # Cast pulled_value to int before performing arithmetic operations
+    result = int(pulled_value) + 100
+    print(f"Result of calculation: {result}")
 
 with DAG(
-    dag_id="runtime_xcom_type_error_dag",
-    start_date=pendulum.datetime(2023, 1, 1, tz="UTC"),
-    schedule=None,
+    dag_id='runtime_xcom_type_error_dag',
+    start_date=datetime(2023, 1, 1),
+    schedule_interval=None,
     catchup=False,
-    tags=["example", "composer-v2", "error", "runtime", "xcoms"],
+    tags=['example'],
 ) as dag:
     push_task = PythonOperator(
-        task_id="push_task",
-        python_callable=push_a_string_value,
+        task_id='push_task',
+        python_callable=push_value,
+        provide_context=True,
     )
 
     pull_and_fail_task = PythonOperator(
-        task_id="pull_and_fail_task",
+        task_id='pull_and_fail_task',
         python_callable=pull_and_do_math,
+        provide_context=True,
     )
-
     push_task >> pull_and_fail_task
