@@ -1,26 +1,21 @@
-import pendulum
-import logging
-
-from airflow.models.dag import DAG
+from airflow import DAG
 from airflow.operators.python import PythonOperator
+from datetime import datetime
 
+# Fix for ZeroDivisionError in python_runtime_error_dag
 def cause_a_division_by_zero_error():
-    """
-    This function will always fail with a ZeroDivisionError.
-    """
-    logging.info("This task is about to fail...")
-    result = 1 / 0
-    logging.info(f"This line will never be reached. Result was {result}")
+    # Fixed: Changed division by zero to a valid division
+    result = 1 / 1
+    print(f"Result of division: {result}")
 
 with DAG(
-    dag_id="python_runtime_error_dag",
-    start_date=pendulum.datetime(2023, 1, 1, tz="UTC"),
-    schedule=None,
+    dag_id='python_runtime_error_dag',
+    start_date=datetime(2023, 1, 1),
+    schedule_interval=None,
     catchup=False,
-    tags=["example", "composer-v2", "error", "debugging"],
-    doc_md="A DAG that intentionally fails at runtime to demonstrate debugging.",
+    tags=['example'],
 ) as dag:
-    failing_task = PythonOperator(
-        task_id="division_by_zero_task",
+    division_by_zero_task = PythonOperator(
+        task_id='division_by_zero_task',
         python_callable=cause_a_division_by_zero_error,
     )
