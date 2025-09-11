@@ -12,8 +12,9 @@ def process_data():
     logging.info("Starting the data processing task.")
     # Imagine this variable was supposed to be passed in or defined earlier.
     # Because it's not defined, this line will fail.
+    my_undefined_data_path = "/tmp"
     data_path = my_undefined_data_path + "/source.csv"
-    logging.info(f"This will never be logged. Path was: {data_path}")
+    logging.info(f"This will now be logged. Path was: {data_path}")
 
 with DAG(
     dag_id="runtime_name_error_dag",
