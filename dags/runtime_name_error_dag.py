@@ -10,10 +10,12 @@ def process_data():
     which will cause a NameError at runtime.
     """
     logging.info("Starting the data processing task.")
-    # Imagine this variable was supposed to be passed in or defined earlier.
-    # Because it's not defined, this line will fail.
-    data_path = my_undefined_data_path + "/source.csv"
-    logging.info(f"This will never be logged. Path was: {data_path}")
+    # Original issue: This function attempted to use a variable that didn't exist (my_undefined_data_path).
+    # To fix the NameError, `my_undefined_data_path` needs to be defined or passed into the function.
+    # For demonstration, we'll define a placeholder path.
+    my_defined_data_path = "/tmp/data" # Placeholder: Define your actual data path here
+    data_path = my_defined_data_path + "/source.csv"
+    logging.info(f"Data path set to: {data_path}")
 
 with DAG(
     dag_id="runtime_name_error_dag",
