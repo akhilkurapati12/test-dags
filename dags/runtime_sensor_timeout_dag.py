@@ -23,7 +23,7 @@ with DAG(
         object="sample/file_that_will_never_exist.txt",
         mode="poke", # 'poke' mode keeps the worker slot busy
         poke_interval=10,
-        timeout=60, # Fail the task after 60 seconds of waiting
+        timeout=300, # Fail the task after 300 seconds of waiting
     )
 
     task_that_will_be_skipped = BashOperator(
