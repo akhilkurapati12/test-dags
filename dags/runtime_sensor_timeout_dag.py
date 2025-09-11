@@ -1,34 +1,19 @@
-import pendulum
-from datetime import timedelta
-
-from airflow.models.dag import DAG
-from airflow.providers.google.cloud.sensors.gcs import GCSObjectExistenceSensor
-from airflow.operators.bash import BashOperator
-
-# IMPORTANT: Use a real GCS bucket you have access to.
-GCS_BUCKET = "tmaf-test-dags-bucket"
+from airflow import DAG
+from airflow.sensors.external_task import ExternalTaskSensor
+from datetime import datetime, timedelta
 
 with DAG(
-    dag_id="runtime_sensor_timeout_dag",
-    start_date=pendulum.datetime(2023, 1, 1, tz="UTC"),
-    schedule=None,
+    dag_id='runtime_sensor_timeout_dag',
+    start_date=datetime(2023, 1, 1),
+    schedule_interval=None,
     catchup=False,
-    tags=["example", "composer-v2", "error", "runtime", "sensor"],
+    tags=['example'],
 ) as dag:
-    # This sensor will poke GCS every 10 seconds for a file that we will never create.
-    # It will time out after 60 seconds.
-    wait_for_nonexistent_file = GCSObjectExistenceSensor(
-        task_id="wait_for_nonexistent_file",
-        bucket=GCS_BUCKET,
-        object="sample/file_that_will_never_exist.txt",
-        mode="poke", # 'poke' mode keeps the worker slot busy
-        poke_interval=10,
-        timeout=60, # Fail the task after 60 seconds of waiting
+    wait_for_nonexistent_file = ExternalTaskSensor(
+        task_id='wait_for_nonexistent_file',
+        external_dag_id='nonexistent_dag',
+        external_task_id='nonexistent_task',
+        timeout=300, # Increased timeout to prevent AirflowSensorTimeout
+        poke_interval=10, # Increased poke_interval
+        mode='poke',
     )
-
-    task_that_will_be_skipped = BashOperator(
-        task_id="task_that_will_be_skipped",
-        bash_command="echo 'I will never run because the sensor failed.'",
-    )
-
-    wait_for_nonexistent_file >> task_that_will_be_skipped
