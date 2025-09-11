@@ -1,3 +1,5 @@
+# IMPORTANT: For this DAG to succeed, the service account running Airflow
+# must have the "bigquery.jobs.create" permission in the GCP project.
 import pendulum
 
 from airflow.models.dag import DAG
@@ -20,7 +22,7 @@ with DAG(
         task_id="failing_sql_query_task",
         configuration={
             "query": {
-                "query": f"SELEC 1 AS value FROM `{GCP_PROJECT_ID}.{BIGQUERY_DATASET}.logs` LIMIT 1;",
+                "query": f"SELECT 1 AS value FROM `{GCP_PROJECT_ID}.{BIGQUERY_DATASET}.logs` LIMIT 1;",
                 "useLegacySql": False,
                 "destinationTable": {
                     "projectId": GCP_PROJECT_ID,
