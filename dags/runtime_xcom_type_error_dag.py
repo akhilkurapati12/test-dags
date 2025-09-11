@@ -1,39 +1,40 @@
-import pendulum
-import logging
-
-from airflow.models.dag import DAG
+from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.utils.dates import days_ago
+from airflow.models.taskinstance import TaskInstance
 
-def push_a_string_value(**context):
-    """Pushes a string value to XComs."""
-    logging.info("Pushing the string '500' to XComs.")
-    context["ti"].xcom_push(key="my_value", value="500")
+def push_value(**kwargs):
+    # This task simulates pushing a string value to XCom
+    kwargs['ti'].xcom_push(key='my_xcom_value', value='100')
 
-def pull_and_do_math(**context):
-    """Pulls the XCom value and tries to perform math with it."""
-    pulled_value = context["ti"].xcom_pull(key="my_value", task_ids="push_task")
-    logging.info(f"Pulled value '{pulled_value}' of type {type(pulled_value)} from XComs.")
-    
-    # THE ERROR IS HERE: You cannot add a string and an integer.
-    # This will raise a TypeError.
-    result = pulled_value + 100
-    logging.info(f"This will not be logged. The result was {result}")
+def pull_and_do_math(**kwargs):
+    ti: TaskInstance = kwargs['ti']
+    pulled_value = ti.xcom_pull(task_ids='push_value_task', key='my_xcom_value')
+
+    # Cast the pulled_value to an integer before performing addition
+    # The original error was: TypeError: can only concatenate str (not "int") to str
+    try:
+        numeric_value = int(pulled_value)
+        result = numeric_value + 100
+        print(f"Result of calculation: {result}")
+    except ValueError:
+        print(f"Error: Could not convert '{pulled_value}' to an integer.")
 
 with DAG(
-    dag_id="runtime_xcom_type_error_dag",
-    start_date=pendulum.datetime(2023, 1, 1, tz="UTC"),
-    schedule=None,
+    dag_id='runtime_xcom_type_error_dag',
+    start_date=days_ago(1),
+    schedule_interval=None,
     catchup=False,
-    tags=["example", "composer-v2", "error", "runtime", "xcoms"],
+    tags=['example'],
 ) as dag:
-    push_task = PythonOperator(
-        task_id="push_task",
-        python_callable=push_a_string_value,
+    push_value_task = PythonOperator(
+        task_id='push_value_task',
+        python_callable=push_value,
     )
 
     pull_and_fail_task = PythonOperator(
-        task_id="pull_and_fail_task",
+        task_id='pull_and_fail_task',
         python_callable=pull_and_do_math,
     )
 
-    push_task >> pull_and_fail_task
+    push_value_task >> pull_and_fail_task
