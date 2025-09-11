@@ -10,8 +10,7 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["example", "composer-v2", "error", "import-error"],
-# The closing parenthesis is missing on the line below!
-as dag:
+) as dag:
     correct_task = BashOperator(
         task_id="this_will_never_run",
         bash_command="echo 'This task is part of a broken DAG.'",
