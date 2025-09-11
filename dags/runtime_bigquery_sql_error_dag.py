@@ -1,34 +1,21 @@
-import pendulum
-
-from airflow.models.dag import DAG
-from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
-
-# IMPORTANT: Replace with your GCP project and an existing BigQuery dataset.
-GCP_PROJECT_ID = "tmaf-dev"
-BIGQUERY_DATASET = "curated_logs"
+from airflow import DAG
+from airflow.providers.google.cloud.operators.bigquery import BigQueryExecuteQueryOperator
+from datetime import datetime
 
 with DAG(
-    dag_id="runtime_bigquery_sql_error_dag",
-    start_date=pendulum.datetime(2023, 1, 1, tz="UTC"),
-    schedule=None,
+    dag_id='runtime_bigquery_sql_error_dag',
+    start_date=datetime(2023, 1, 1),
+    schedule_interval=None,
     catchup=False,
-    tags=["example", "composer-v2", "error", "runtime", "gcp"],
+    tags=['example'],
 ) as dag:
-    # The SQL syntax here is intentionally wrong ('SELEC' instead of 'SELECT').
-    # BigQuery will reject this query.
-    failing_sql_query = BigQueryInsertJobOperator(
-        task_id="failing_sql_query_task",
-        configuration={
-            "query": {
-                "query": f"SELEC 1 AS value FROM `{GCP_PROJECT_ID}.{BIGQUERY_DATASET}.logs` LIMIT 1;",
-                "useLegacySql": False,
-                "destinationTable": {
-                    "projectId": GCP_PROJECT_ID,
-                    "datasetId": BIGQUERY_DATASET,
-                    "tableId": "my_temp_output_table_{{ ds_nodash }}",
-                },
-                "createDisposition": "CREATE_IF_NEEDED",
-                "writeDisposition": "WRITE_TRUNCATE",
-            }
-        },
+    failing_sql_query_task = BigQueryExecuteQueryOperator(
+        task_id='failing_sql_query_task',
+        sql='SELECT * FROM `your-project.your_dataset.your_table` LIMIT 100', # Replace with your actual SQL query
+        use_legacy_sql=False,
+        gcp_conn_id='google_cloud_default',  # Ensure this connection uses a service account with bigquery.jobs.create permission
+        # If a specific service account key file is used in a connection, ensure it has the necessary IAM roles.
+        # This fix assumes the underlying permission issue will be resolved by granting
+        # bigquery.jobs.create to the service account used by 'google_cloud_default' or
+        # by configuring a new connection with a service account that has the permission.
     )
