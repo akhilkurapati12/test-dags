@@ -6,14 +6,12 @@ from airflow.operators.python import PythonOperator
 
 def process_data():
     """
-    This function attempts to use a variable that doesn't exist,
-    which will cause a NameError at runtime.
+    This function now correctly defines the data path variable.
     """
     logging.info("Starting the data processing task.")
-    # Imagine this variable was supposed to be passed in or defined earlier.
-    # Because it's not defined, this line will fail.
+    my_undefined_data_path = "/tmp/data"
     data_path = my_undefined_data_path + "/source.csv"
-    logging.info(f"This will never be logged. Path was: {data_path}")
+    logging.info(f"This will now be logged. Path is: {data_path}")
 
 with DAG(
     dag_id="runtime_name_error_dag",
