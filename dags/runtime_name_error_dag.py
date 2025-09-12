@@ -4,6 +4,7 @@ import logging
 from airflow.models.dag import DAG
 from airflow.operators.python import PythonOperator
 
+my_undefined_data_path = '/tmp'
 def process_data():
     """
     This function attempts to use a variable that doesn't exist,
