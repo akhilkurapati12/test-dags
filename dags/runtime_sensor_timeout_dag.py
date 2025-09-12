@@ -21,9 +21,9 @@ with DAG(
         task_id="wait_for_nonexistent_file",
         bucket=GCS_BUCKET,
         object="sample/file_that_will_never_exist.txt",
-        mode="poke", # 'poke' mode keeps the worker slot busy
+        mode="reschedule", # 'reschedule' mode releases the worker slot while waiting
         poke_interval=10,
-        timeout=60, # Fail the task after 60 seconds of waiting
+        timeout=60 * 60 * 24, # Increased timeout to 24 hours for reschedule mode
     )
 
     task_that_will_be_skipped = BashOperator(
