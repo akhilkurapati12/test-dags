@@ -14,6 +14,9 @@ with DAG(
     catchup=False,
     tags=["example", "composer-v2", "error", "runtime", "gcp"],
 ) as dag:
+    # Fix for Issue 2: IAM Permission for BigQuery
+    # Ensure the service account running this Airflow task has the 'bigquery.jobs.create' permission
+    # on project 'tmaf-dev' to resolve the 403 Forbidden error.
     # The SQL syntax here is intentionally wrong ('SELEC' instead of 'SELECT').
     # BigQuery will reject this query.
     failing_sql_query = BigQueryInsertJobOperator(
