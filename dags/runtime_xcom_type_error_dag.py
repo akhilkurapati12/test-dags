@@ -16,8 +16,8 @@ def pull_and_do_math(**context):
     
     # THE ERROR IS HERE: You cannot add a string and an integer.
     # This will raise a TypeError.
-    result = pulled_value + 100
-    logging.info(f"This will not be logged. The result was {result}")
+    result = int(pulled_value) + 100 # Cast pulled_value to int
+    logging.info(f"The result was {result}")
 
 with DAG(
     dag_id="runtime_xcom_type_error_dag",
