@@ -14,8 +14,8 @@ with DAG(
     catchup=False,
     tags=["example", "composer-v2", "error", "runtime", "gcp"],
 ) as dag:
-    # The SQL syntax here is intentionally wrong ('SELEC' instead of 'SELECT').
-    # BigQuery will reject this query.
+    # FIX_REQUIRED: The service account running this DAG needs 'bigquery.jobs.create' permission
+    # in the 'tmaf-dev' project to execute BigQuery jobs.
     failing_sql_query = BigQueryInsertJobOperator(
         task_id="failing_sql_query_task",
         configuration={
