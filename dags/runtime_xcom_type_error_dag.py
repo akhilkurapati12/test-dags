@@ -13,11 +13,10 @@ def pull_and_do_math(**context):
     """Pulls the XCom value and tries to perform math with it."""
     pulled_value = context["ti"].xcom_pull(key="my_value", task_ids="push_task")
     logging.info(f"Pulled value '{pulled_value}' of type {type(pulled_value)} from XComs.")
-    
-    # THE ERROR IS HERE: You cannot add a string and an integer.
-    # This will raise a TypeError.
-    result = pulled_value + 100
-    logging.info(f"This will not be logged. The result was {result}")
+
+    # Fix: Cast pulled_value to an integer before performing arithmetic operation.
+    result = int(pulled_value) + 100
+    logging.info(f"The result of the operation is {result}")
 
 with DAG(
     dag_id="runtime_xcom_type_error_dag",
