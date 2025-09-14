@@ -6,11 +6,16 @@ from airflow.operators.python import PythonOperator
 
 def cause_a_division_by_zero_error():
     """
-    This function will always fail with a ZeroDivisionError.
+    This function will now handle ZeroDivisionError.
     """
-    logging.info("This task is about to fail...")
-    result = 1 / 0
-    logging.info(f"This line will never be reached. Result was {result}")
+    logging.info("Attempting a division operation...")
+    try:
+        result = 1 / 0
+        logging.info(f"Result was {result}")
+    except ZeroDivisionError:
+        logging.warning("Caught ZeroDivisionError: division by zero. Returning None.")
+        result = None
+    return result
 
 with DAG(
     dag_id="python_runtime_error_dag",
