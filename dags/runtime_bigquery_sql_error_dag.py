@@ -14,7 +14,10 @@ with DAG(
     catchup=False,
     tags=["example", "composer-v2", "error", "runtime", "gcp"],
 ) as dag:
-    # The SQL syntax here is intentionally wrong ('SELEC' instead of 'SELECT').
+    # This task requires the service account to have the `bigquery.jobs.create`
+    # permission in the `tmaf-dev` project. If you encounter a 403 Forbidden error,
+    # please grant the necessary IAM permission to the Airflow service account.
+    # The SQL syntax here is intentionally wrong (\'SELEC\' instead of \'SELECT\').
     # BigQuery will reject this query.
     failing_sql_query = BigQueryInsertJobOperator(
         task_id="failing_sql_query_task",
