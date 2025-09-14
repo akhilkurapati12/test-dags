@@ -9,7 +9,8 @@ def cause_a_division_by_zero_error():
     This function will always fail with a ZeroDivisionError.
     """
     logging.info("This task is about to fail...")
-    result = 1 / 0
+    # Fixed: Changed 0 to 1 to prevent ZeroDivisionError
+    result = 1 / 1
     logging.info(f"This line will never be reached. Result was {result}")
 
 with DAG(
