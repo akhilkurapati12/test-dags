@@ -7,6 +7,7 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 GCP_PROJECT_ID = "tmaf-dev"
 BIGQUERY_DATASET = "curated_logs"
 
+# IAM Note: The service account running this DAG needs the 'bigquery.jobUser' role to create BigQuery jobs.
 with DAG(
     dag_id="runtime_bigquery_sql_error_dag",
     start_date=pendulum.datetime(2023, 1, 1, tz="UTC"),
