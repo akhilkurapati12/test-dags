@@ -1,3 +1,5 @@
+# This DAG requires the service account running Airflow tasks to have the bigquery.jobs.create permission.
+# If you encounter 403 Forbidden errors, please ensure the service account has the necessary IAM roles.
 import pendulum
 
 from airflow.models.dag import DAG
