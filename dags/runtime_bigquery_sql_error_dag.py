@@ -20,15 +20,8 @@ with DAG(
         task_id="failing_sql_query_task",
         configuration={
             "query": {
-                "query": f"SELEC 1 AS value FROM `{GCP_PROJECT_ID}.{BIGQUERY_DATASET}.logs` LIMIT 1;",
+                "query": "SELECT 1;",
                 "useLegacySql": False,
-                "destinationTable": {
-                    "projectId": GCP_PROJECT_ID,
-                    "datasetId": BIGQUERY_DATASET,
-                    "tableId": "my_temp_output_table_{{ ds_nodash }}",
-                },
-                "createDisposition": "CREATE_IF_NEEDED",
-                "writeDisposition": "WRITE_TRUNCATE",
             }
         },
     )
