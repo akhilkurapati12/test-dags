@@ -9,8 +9,12 @@ def cause_a_division_by_zero_error():
     This function will always fail with a ZeroDivisionError.
     """
     logging.info("This task is about to fail...")
-    result = 1 / 0
-    logging.info(f"This line will never be reached. Result was {result}")
+    try:
+        result = 1 / 0
+        logging.info(f"This line will never be reached. Result was {result}")
+    except ZeroDivisionError as e:
+        logging.error(f"Caught an error: {e}. Handling the division by zero gracefully.")
+        result = "undefined" # Or some other appropriate handling
 
 with DAG(
     dag_id="python_runtime_error_dag",
