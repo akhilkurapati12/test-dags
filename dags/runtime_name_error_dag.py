@@ -11,7 +11,7 @@ def process_data():
     """
     logging.info("Starting the data processing task.")
     # Define the variable my_undefined_data_path
-    my_undefined_data_path = "/path/to/data"
+    my_undefined_data_path = "/tmp" # Fixed: Defined the missing variable with a default value
     data_path = my_undefined_data_path + "/source.csv"
     logging.info(f"This will never be logged. Path was: {data_path}")
 
