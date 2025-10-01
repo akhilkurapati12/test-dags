@@ -5,7 +5,7 @@ from airflow.models.dag import DAG
 from airflow.providers.google.cloud.sensors.gcs import GCSObjectExistenceSensor
 from airflow.operators.bash import BashOperator
 
-# IMPORTANT: Use a real GCS bucket you have access to.
+# IMPORTANT: Use a real GCS bucket you have to.
 GCS_BUCKET = "tmaf-test-dags-bucket"
 
 with DAG(
@@ -23,7 +23,7 @@ with DAG(
         object="sample/file_that_will_never_exist.txt",
         mode="poke", # 'poke' mode keeps the worker slot busy
         poke_interval=10,
-        timeout=60, # Fail the task after 60 seconds of waiting
+        timeout=120, # Fail the task after 120 seconds of waiting (increased from 60)
     )
 
     task_that_will_be_skipped = BashOperator(
